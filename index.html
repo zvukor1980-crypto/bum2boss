@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Бомж→Босс">
+<meta name="theme-color" content="#1a0b2e">
+<meta name="format-detection" content="telephone=no">
+<title>От бомжа до бизнесмена</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="bg"><div class="blob b1"></div><div class="blob b2"></div><div class="blob b3"></div><div id="scene"></div></div>
+<div id="app">
+  <header id="hud">
+    <div class="hud-top">
+      <div class="cash-wrap">
+        <div id="cash" class="cash">0 ₽</div>
+        <div class="ips"><span id="ips">0 ₽/с</span><span id="boostTag" class="boost-tag hidden">⚡x3</span></div>
+      </div>
+      <div class="status-pill" id="statusPill"><span id="stageEmoji">🧔</span><span id="stageName">Бомж</span></div>
+    </div>
+    <div class="stage-bar"><div id="stageFill" class="stage-fill"></div><span id="stageNext" class="stage-next"></span></div>
+  </header>
+  <main id="screen">
+    <section id="tab-work" class="tab active"></section>
+    <section id="tab-biz" class="tab"></section>
+    <section id="tab-upg" class="tab"></section>
+    <section id="tab-life" class="tab"></section>
+    <section id="tab-more" class="tab"></section>
+  </main>
+  <nav id="tabs">
+    <button data-tab="work" class="active"><i>👊</i><span>Работа</span></button>
+    <button data-tab="biz"><i>🏪</i><span>Бизнес</span><b class="dot hidden" id="dotBiz"></b></button>
+    <button data-tab="upg"><i>🚀</i><span>Улучшения</span><b class="dot hidden" id="dotUpg"></b></button>
+    <button data-tab="life"><i>🏝️</i><span>Жизнь</span></button>
+    <button data-tab="more"><i>🎰</i><span>Ещё</span><b class="dot hidden" id="dotMore"></b></button>
+  </nav>
+</div>
+<div id="fx"></div>
+<div id="golden" class="hidden">🍾</div>
+<canvas id="confetti"></canvas>
+<div id="toasts"></div>
+<div id="modal" class="hidden"><div class="modal-card" id="modalCard"></div></div>
+<script src="data.js"></script>
+<script src="audio.js"></script>
+<script src="game.js"></script>
+</body>
+</html>
