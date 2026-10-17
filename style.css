@@ -206,3 +206,13 @@ button{font-family:inherit;color:inherit;border:0;background:none;cursor:pointer
 @keyframes toastIn{from{transform:translateY(-120%) scale(.8);opacity:0}}
 @keyframes toastOut{to{transform:translateY(-120%);opacity:0}}
 @media (max-height:700px){.tap-zone{width:min(60vw,230px);height:min(60vw,230px)}#tapBtn .char{font-size:90px}.cash{font-size:26px}}
+
+/* Modern business lounge. Monetary values remain the visual priority. */
+:root{--glass:#192a3dd9;--glass2:#243a50;--line:#c4d8e526;--gold:#f1d79b;--gold2:#c49c65}
+#bg{background:radial-gradient(ellipse at 15% 0%,#36756955,transparent 65%),linear-gradient(155deg,#142a32,#1c2337 60%,#101722)}
+.b2{background:#779a88;opacity:.2}.b3{background:#6185bb;opacity:.2}
+#hud{background:linear-gradient(180deg,#112131e8,transparent);padding-top:14px}.cash{letter-spacing:-1px}.status-pill{border:1px solid #ebd8ac50;background:#182a3ade}
+#tabs{background:#111f2ff5;border-top:1px solid #aec8da30;box-shadow:0 -10px 30px #0002}#tabs button.active{color:#f1d79b;background:#d0ac5d12;border-radius:14px}
+.modal-card{background:linear-gradient(145deg,#23374c,#142332);border:1px solid #c6d3df38;box-shadow:0 24px 80px #0008}
+button:focus-visible{outline:3px solid #f1d79b;outline-offset:3px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
