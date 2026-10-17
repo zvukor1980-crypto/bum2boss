@@ -220,6 +220,11 @@ function renderTab() {
 
 /* ===== РАБОТА ===== */
 function best(cat) { return LIFE.filter(l => l.cat === cat && S.life[l.id]).pop(); }
+function careerPortrait(){
+ const stage=Math.max(0,Math.min(STAGES.length-1,S.stage)),suited=stage>=5,coat=suited?'#263e58':stage>=2?'#4f8e8b':'#706052',accent=stage>=7?'#edca7e':'#95d6cf';
+ const city=Array.from({length:9},(_,i)=>{const h=20+((i*17+stage*11)%55);return '<g><rect x="'+(i*27-3)+'" y="'+(132-h)+'" width="23" height="'+h+'" rx="2" fill="'+(i%2?'#223b54':'#2e4c65')+'"/>'+Array.from({length:3},(_,j)=>'<path d="M'+(i*27+2)+' '+(138-h+j*11)+'h5m5 0h5" stroke="#e7c99366" stroke-width="3"/>').join('')+'</g>'}).join('');
+ return '<svg class="career-portrait" viewBox="0 0 240 240" aria-hidden="true"><defs><radialGradient id="career-sky"><stop stop-color="#45617d"/><stop offset="1" stop-color="#14243c"/></radialGradient><linearGradient id="career-coat" x2="1" y2="1"><stop stop-color="'+coat+'"/><stop offset="1" stop-color="#15263b"/></linearGradient></defs><circle cx="120" cy="120" r="114" fill="url(#career-sky)"/><circle cx="181" cy="47" r="17" fill="#eac99a"/>'+city+'<path d="M10 159Q120 122 230 159V240H10Z" fill="#172c3e"/><path d="M25 182Q120 151 216 182M40 211Q120 179 200 211" fill="none" stroke="#c7ac6e33"/><ellipse cx="123" cy="219" rx="56" ry="11" fill="#07162a88"/><path d="M91 172h25l-4 44H86zm32 0h26l7 44h-27z" fill="#17263b"/><path d="M83 213h30v9H80zm46 0h31v9h-31z" fill="#0c192a"/><path d="M83 103q39-21 74 0l12 73q-49 17-98 0z" fill="url(#career-coat)" stroke="#b5d3d633" stroke-width="2"/><path d="M105 98l15 42 16-42" fill="'+(suited?'#e3e9e7':'#aeaa91')+'"/><path d="M118 110h6l3 29-7 8-6-8z" fill="'+accent+'"/><path d="M83 112l-16 51 12 5 21-46m56-10 15 45-12 5-20-40" fill="'+coat+'"/><ellipse cx="73" cy="170" rx="8" ry="10" fill="#dbac89"/><ellipse cx="164" cy="166" rx="8" ry="10" fill="#dbac89"/><rect x="110" y="82" width="21" height="24" rx="8" fill="#d2a17d"/><ellipse cx="120" cy="68" rx="27" ry="32" fill="#edc5a0"/><path d="M94 66q-10-39 26-37 33 0 28 35l-9-14q-20 4-35-3z" fill="#4b3a34"/><path d="M108 70h5m14 0h5" stroke="#483d3c" stroke-width="3" stroke-linecap="round"/><path d="M113 85q8 5 15-1" stroke="#966c59" stroke-width="2" fill="none"/>'+(stage<2?'<path d="M98 83q22 35 45-2l-4 24-19 10-18-11z" fill="#625448"/>':'')+(suited?'<path d="M79 168h27v21H78z" fill="#866c4b" stroke="#ddbf89"/><path d="M84 168v-6h15v6" fill="none" stroke="#ddbf89"/>':'')+'<circle cx="120" cy="120" r="112" fill="none" stroke="'+accent+'" stroke-width="2" stroke-opacity=".45"/></svg>';
+}
 function renderWork() {
   const st = STAGES[S.stage], nx = STAGES[S.stage + 1];
   const daily = dailyAvailable();
@@ -228,7 +233,7 @@ function renderWork() {
     <div class="quote">«${st.quote}»</div>
     <div class="tap-zone">
       <div class="tap-ring"></div><div class="tap-ring2"></div>
-      <button id="tapBtn" aria-label="Тап"><span class="char">${st.emoji}</span>
+      <button id="tapBtn" aria-label="Тап"><span class="char">${careerPortrait()}</span>
         <span class="acc a1">${best('home').emoji}</span><span class="acc a2">${best('car').emoji}</span><span class="acc a3">${best('wear').emoji}</span></button>
     </div>
     <div class="combo"><div id="comboFill"></div></div>
