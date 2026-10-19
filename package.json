@@ -1,0 +1,8 @@
+{
+  "name": "bum2boss",
+  "version": "2.0.0",
+  "private": true,
+  "description": "От бомжа до бизнесмена — кликер-карьера (PWA, GitHub Pages)",
+  "scripts": { "serve": "npx --yes serve . -l 5176", "e2e": "node tools/e2e.js" },
+  "devDependencies": { "puppeteer-core": "^23.11.1" }
+}

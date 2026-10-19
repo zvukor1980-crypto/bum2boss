@@ -219,3 +219,44 @@ button:focus-visible{outline:3px solid #f1d79b;outline-offset:3px}
 
 /* Career scene is vector artwork, so it is crisp on any device. */
 #tapBtn .char{width:100%;height:100%;font-size:0;animation:none;display:block}.career-portrait{display:block;width:100%;height:100%;border-radius:50%;overflow:hidden}#tapBtn .acc{font-size:25px;opacity:.88}#tapBtn .acc.a3{font-size:22px}.tap-ring,.tap-ring2{opacity:.3}#scene{font-size:22px;opacity:.14}
+
+/* ===== v2.0 «Блеск успеха»: ярко, сочно, дорого ===== */
+:root{--glass:rgba(30,14,60,.42);--glass2:rgba(255,255,255,.2);--line:rgba(255,255,255,.28);--gold:#ffd23f;--gold2:#ff9f1c}
+#bg{background:#1a0b2e}
+#sky{position:absolute;inset:0;width:100%;height:100%}
+#bg::after{background:radial-gradient(120% 70% at 50% 0%,rgba(255,255,255,.12),transparent 60%),radial-gradient(100% 50% at 50% 115%,rgba(10,0,30,.6),transparent 70%)}
+.blob{opacity:.28}#scene{display:none}
+#fx2{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:31}
+#hud{background:linear-gradient(180deg,rgba(15,5,35,.65),rgba(15,5,35,0))}
+.cash{font-size:32px;filter:drop-shadow(0 2px 0 #7a3a00) drop-shadow(0 0 14px rgba(255,200,60,.55))}
+.status-pill{background:linear-gradient(135deg,rgba(255,210,63,.35),rgba(255,60,172,.3));border:1px solid rgba(255,255,255,.5);box-shadow:0 6px 20px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.5)}
+.stage-bar{height:20px;background:rgba(10,0,30,.5);border:1px solid rgba(255,255,255,.35)}
+.stage-fill{background:linear-gradient(90deg,#ffe066,#ff9f1c,#ff3cac,#a855f7);background-size:200% 100%;animation:shimmer 3s linear infinite;box-shadow:0 0 14px rgba(255,180,60,.8)}
+.tap-ring,.tap-ring2{opacity:.9}
+.tap-zone::before{content:"";position:absolute;inset:-34%;border-radius:50%;background:repeating-conic-gradient(rgba(255,240,170,.22) 0 9deg,rgba(255,240,170,0) 9deg 18deg);-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:spin 26s linear infinite;pointer-events:none}
+#tapBtn{box-shadow:0 0 0 4px rgba(255,255,255,.55),0 0 40px rgba(255,210,90,.6),0 22px 50px rgba(0,0,0,.5)}
+#tapBtn::after{content:"";position:absolute;inset:0;border-radius:50%;background:linear-gradient(160deg,rgba(255,255,255,.35),rgba(255,255,255,0) 40%);pointer-events:none}
+#tapBtn .acc{font-size:30px;opacity:1;filter:drop-shadow(0 4px 6px rgba(0,0,0,.45))}
+.quote{background:rgba(15,5,35,.4);padding:4px 12px;border-radius:12px}
+.card,.boost,.tile,.chip{background:linear-gradient(160deg,rgba(255,255,255,.2),rgba(255,255,255,.05)),rgba(30,12,62,.48);border:1px solid rgba(255,255,255,.3);box-shadow:0 10px 28px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35)}
+.ico{background:linear-gradient(145deg,#ffe57a,#ff9f1c 55%,#ff3cac);box-shadow:inset 0 2px 0 rgba(255,255,255,.6),0 6px 14px rgba(255,120,60,.35)}
+.btn{position:relative;overflow:hidden}
+.btn:not(.off):not(.ghost)::after{content:"";position:absolute;top:-30%;bottom:-30%;left:0;width:28%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.6),transparent);transform:translateX(-200%) skewX(-20deg);animation:btnShine 3.2s ease-in-out infinite;pointer-events:none}
+@keyframes btnShine{0%,60%{transform:translateX(-200%) skewX(-20deg)}90%,100%{transform:translateX(500%) skewX(-20deg)}}
+#tabs{background:linear-gradient(180deg,rgba(60,25,110,.82),rgba(25,8,50,.92));border:1px solid rgba(255,255,255,.3)}
+#tabs button.active{color:#fff;background:linear-gradient(135deg,rgba(255,210,63,.55),rgba(255,60,172,.45));box-shadow:0 0 18px rgba(255,160,80,.45),inset 0 1px 0 rgba(255,255,255,.6)}
+.modal-card{background:linear-gradient(160deg,rgba(255,255,255,.22),rgba(255,255,255,.04)),linear-gradient(160deg,#5b2fc9,#2a0d5a);border:1px solid rgba(255,255,255,.45);box-shadow:0 30px 80px rgba(0,0,0,.6),0 0 40px rgba(168,85,247,.4)}
+.t5{background:linear-gradient(135deg,rgba(255,210,63,.55),rgba(255,120,40,.4))}.t6{background:linear-gradient(135deg,rgba(255,130,190,.55),rgba(255,60,120,.35))}
+/* копилка */
+.piggy{width:100%;margin-top:12px;display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:20px;background:linear-gradient(135deg,rgba(255,150,200,.45),rgba(160,60,200,.35));border:1px solid rgba(255,255,255,.4);box-shadow:0 8px 24px rgba(0,0,0,.25),inset 0 1px 0 rgba(255,255,255,.5);color:#fff}
+.piggy .pig{font-size:36px;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+.piggy b{font-size:15px}.piggy small{font-size:11px;font-weight:700;opacity:.9}
+.pbar2{height:10px;border-radius:6px;background:rgba(0,0,0,.35);overflow:hidden;margin:4px 0}
+.pbar2>div{height:100%;width:0;border-radius:6px;background:linear-gradient(90deg,#ffe066,#ff3cac);box-shadow:0 0 10px rgba(255,120,180,.8);transition:width .3s}
+.piggy.full{animation:glow 1.2s infinite}.piggy.full .pig{animation:pulse .8s infinite}
+.qline{margin-top:10px;padding:8px 16px;border-radius:99px;font-weight:900;font-size:13px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.3)}
+.quest-banner{background:linear-gradient(135deg,#ffb800,#ff3cac)}
+.quest.done{box-shadow:0 0 22px rgba(255,210,63,.6);border-color:#ffe066}.quest.got{opacity:.6}
+.qbar{height:9px;border-radius:6px;background:rgba(0,0,0,.35);overflow:hidden;margin:5px 0 2px}
+.qbar>div{height:100%;border-radius:6px;background:linear-gradient(90deg,#00f5a0,#ffd23f)}
+@media(prefers-reduced-motion:reduce){.tap-zone::before{animation:none}}

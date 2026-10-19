@@ -44,7 +44,8 @@ function fresh() {
     boostUntil: 0, boostCd: 0, adCd: 0, frenzyUntil: 0,
     daily: {last: '', streak: 0},
     ach: {}, stocks: {}, stockAvg: {}, market: null,
-    stats: {jackpots: 0, cupWins: 0, stockProfit: 0, golden: 0, maxCombo: 0, honest: 0, events: 0, spins: 0, playTime: 0, started: now()},
+    stats: {jackpots: 0, cupWins: 0, stockProfit: 0, golden: 0, maxCombo: 0, honest: 0, events: 0, spins: 0, playTime: 0, started: now(), bizBought: 0, rain: 0, rainBest: 0, energy: 0, piggy: 0, quests: 0, dayCombo: 0},
+    piggy: 0, quests: {day: '', ids: [], base: {}, got: []},
     settings: {sound: true, vibe: true},
     buyMult: 1, lastSave: now(),
   };
@@ -105,7 +106,7 @@ function buyCount(b) { return S.buyMult === 'max' ? Math.max(1, maxN(b)) : S.buy
 const prestigeGain = () => Math.max(0, Math.floor(Math.sqrt(S.lifetime / 1e6)) - S.prestige);
 function baseReward() { return Math.max(100, bizIps() * 60 + tapValue() * 40); }
 
-function earn(x) { if (!(x > 0)) return; S.cash += x; S.totalEarned += x; S.lifetime += x; }
+function earn(x) { if (!(x > 0)) return; S.cash += x; S.totalEarned += x; S.lifetime += x; if (typeof SHINE !== 'undefined') SHINE.piggyAdd(x); }
 function spend(x) { if (S.cash + 1e-9 < x) { Sfx.error(); vibe(40); $('#cash').classList.add('shake'); setTimeout(() => $('#cash').classList.remove('shake'), 300); return false; } S.cash -= x; return true; }
 function vibe(ms) { if (S.settings.vibe && navigator.vibrate) try { navigator.vibrate(ms); } catch (e) {} }
 
@@ -194,12 +195,14 @@ function doTap(x, y) {
   const t = now();
   combo = (t - lastTap < 450) ? combo + 1 : 1; lastTap = t;
   if (combo > S.stats.maxCombo) S.stats.maxCombo = combo;
+  if (combo > (S.stats.dayCombo || 0)) S.stats.dayCombo = combo;
   const cm = 1 + Math.min(combo, 100) / 100;
   const crit = Math.random() < critChance();
   const v = tapValue() * cm * (crit ? 10 : 1);
   earn(v); S.taps++;
   floatText(x + rnd(-20, 20), y - 10, (crit ? 'КРИТ! +' : '+') + money(v), crit);
-  particles(x, y, crit ? 10 : 3, tapSets[S.stage]);
+  particles(x, y, crit ? 6 : 2, tapSets[S.stage]);
+  if (typeof SHINE !== 'undefined') SHINE.coin(x, y, crit ? 16 : 4, crit);
   crit ? Sfx.crit() : Sfx.tap(); vibe(crit ? 25 : 6);
   const c = $('#cash'); c.classList.remove('bump'); void c.offsetWidth; c.classList.add('bump');
 }
@@ -220,10 +223,11 @@ function renderTab() {
 
 /* ===== РАБОТА ===== */
 function best(cat) { return LIFE.filter(l => l.cat === cat && S.life[l.id]).pop(); }
+const PSKY=[['#ffb27a','#7a4a8c','#2a1a44'],['#ffc07a','#8a5ab0','#2a2560'],['#fff3a0','#6ee0c8','#1f7a8c'],['#fff0a0','#6cc8ff','#2a5fc0'],['#ff7ab0','#a03aa0','#2a0d50'],['#ffd28a','#5aa0ff','#1d2f8a'],['#ffc0e0','#c048b8','#3a1270'],['#7ae8ff','#1f6aa0','#06203a'],['#fff2a0','#e0a020','#5a3a00'],['#fff0a0','#ff5fb8','#5a0b72']];
 function careerPortrait(){
  const stage=Math.max(0,Math.min(STAGES.length-1,S.stage)),suited=stage>=5,coat=suited?'#263e58':stage>=2?'#4f8e8b':'#706052',accent=stage>=7?'#edca7e':'#95d6cf';
  const city=Array.from({length:9},(_,i)=>{const h=20+((i*17+stage*11)%55);return '<g><rect x="'+(i*27-3)+'" y="'+(132-h)+'" width="23" height="'+h+'" rx="2" fill="'+(i%2?'#223b54':'#2e4c65')+'"/>'+Array.from({length:3},(_,j)=>'<path d="M'+(i*27+2)+' '+(138-h+j*11)+'h5m5 0h5" stroke="#e7c99366" stroke-width="3"/>').join('')+'</g>'}).join('');
- return '<svg class="career-portrait" viewBox="0 0 240 240" aria-hidden="true"><defs><radialGradient id="career-sky"><stop stop-color="#45617d"/><stop offset="1" stop-color="#14243c"/></radialGradient><linearGradient id="career-coat" x2="1" y2="1"><stop stop-color="'+coat+'"/><stop offset="1" stop-color="#15263b"/></linearGradient></defs><circle cx="120" cy="120" r="114" fill="url(#career-sky)"/><circle cx="181" cy="47" r="17" fill="#eac99a"/>'+city+'<path d="M10 159Q120 122 230 159V240H10Z" fill="#172c3e"/><path d="M25 182Q120 151 216 182M40 211Q120 179 200 211" fill="none" stroke="#c7ac6e33"/><ellipse cx="123" cy="219" rx="56" ry="11" fill="#07162a88"/><path d="M91 172h25l-4 44H86zm32 0h26l7 44h-27z" fill="#17263b"/><path d="M83 213h30v9H80zm46 0h31v9h-31z" fill="#0c192a"/><path d="M83 103q39-21 74 0l12 73q-49 17-98 0z" fill="url(#career-coat)" stroke="#b5d3d633" stroke-width="2"/><path d="M105 98l15 42 16-42" fill="'+(suited?'#e3e9e7':'#aeaa91')+'"/><path d="M118 110h6l3 29-7 8-6-8z" fill="'+accent+'"/><path d="M83 112l-16 51 12 5 21-46m56-10 15 45-12 5-20-40" fill="'+coat+'"/><ellipse cx="73" cy="170" rx="8" ry="10" fill="#dbac89"/><ellipse cx="164" cy="166" rx="8" ry="10" fill="#dbac89"/><rect x="110" y="82" width="21" height="24" rx="8" fill="#d2a17d"/><ellipse cx="120" cy="68" rx="27" ry="32" fill="#edc5a0"/><path d="M94 66q-10-39 26-37 33 0 28 35l-9-14q-20 4-35-3z" fill="#4b3a34"/><path d="M108 70h5m14 0h5" stroke="#483d3c" stroke-width="3" stroke-linecap="round"/><path d="M113 85q8 5 15-1" stroke="#966c59" stroke-width="2" fill="none"/>'+(stage<2?'<path d="M98 83q22 35 45-2l-4 24-19 10-18-11z" fill="#625448"/>':'')+(suited?'<path d="M79 168h27v21H78z" fill="#866c4b" stroke="#ddbf89"/><path d="M84 168v-6h15v6" fill="none" stroke="#ddbf89"/>':'')+'<circle cx="120" cy="120" r="112" fill="none" stroke="'+accent+'" stroke-width="2" stroke-opacity=".45"/></svg>';
+ return '<svg class="career-portrait" viewBox="0 0 240 240" aria-hidden="true"><defs><radialGradient id="career-sky" cy=".35"><stop stop-color="'+PSKY[stage][0]+'"/><stop offset=".6" stop-color="'+PSKY[stage][1]+'"/><stop offset="1" stop-color="'+PSKY[stage][2]+'"/></radialGradient><linearGradient id="career-coat" x2="1" y2="1"><stop stop-color="'+coat+'"/><stop offset="1" stop-color="#15263b"/></linearGradient></defs><circle cx="120" cy="120" r="114" fill="url(#career-sky)"/><circle cx="181" cy="47" r="17" fill="#eac99a"/>'+city+'<path d="M10 159Q120 122 230 159V240H10Z" fill="#172c3e"/><path d="M25 182Q120 151 216 182M40 211Q120 179 200 211" fill="none" stroke="#c7ac6e33"/><ellipse cx="123" cy="219" rx="56" ry="11" fill="#07162a88"/><path d="M91 172h25l-4 44H86zm32 0h26l7 44h-27z" fill="#17263b"/><path d="M83 213h30v9H80zm46 0h31v9h-31z" fill="#0c192a"/><path d="M83 103q39-21 74 0l12 73q-49 17-98 0z" fill="url(#career-coat)" stroke="#b5d3d633" stroke-width="2"/><path d="M105 98l15 42 16-42" fill="'+(suited?'#e3e9e7':'#aeaa91')+'"/><path d="M118 110h6l3 29-7 8-6-8z" fill="'+accent+'"/><path d="M83 112l-16 51 12 5 21-46m56-10 15 45-12 5-20-40" fill="'+coat+'"/><ellipse cx="73" cy="170" rx="8" ry="10" fill="#dbac89"/><ellipse cx="164" cy="166" rx="8" ry="10" fill="#dbac89"/><rect x="110" y="82" width="21" height="24" rx="8" fill="#d2a17d"/><ellipse cx="120" cy="68" rx="27" ry="32" fill="#edc5a0"/><path d="M94 66q-10-39 26-37 33 0 28 35l-9-14q-20 4-35-3z" fill="#4b3a34"/><path d="M108 70h5m14 0h5" stroke="#483d3c" stroke-width="3" stroke-linecap="round"/><path d="M113 85q8 5 15-1" stroke="#966c59" stroke-width="2" fill="none"/>'+(stage<2?'<path d="M98 83q22 35 45-2l-4 24-19 10-18-11z" fill="#625448"/>':'')+(suited?'<path d="M79 168h27v21H78z" fill="#866c4b" stroke="#ddbf89"/><path d="M84 168v-6h15v6" fill="none" stroke="#ddbf89"/>':'')+(stage>=8?'<path d="M98 40l8-18 14 12 14-12 8 18z" fill="#ffd23f" stroke="#8a5a00" stroke-width="2"/><circle cx="120" cy="30" r="3.5" fill="#ff3cac"/><circle cx="104" cy="34" r="2.5" fill="#3dc8ff"/><circle cx="136" cy="34" r="2.5" fill="#3dff9a"/>':'')+'<circle cx="120" cy="120" r="112" fill="none" stroke="'+accent+'" stroke-width="3" stroke-opacity=".8"/></svg>';
 }
 function renderWork() {
   const st = STAGES[S.stage], nx = STAGES[S.stage + 1];
@@ -248,6 +252,8 @@ function renderWork() {
       <button class="boost" data-act="energy"><span class="bi">⚡</span><b>Энергетик</b><small id="bEnergy"></small><div class="cd" id="cdEnergy"></div></button>
       <button class="boost" data-act="ad"><span class="bi">📣</span><b>Реклама</b><small id="bAd"></small><div class="cd" id="cdAd"></div></button>
     </div>
+    ${typeof SHINE !== 'undefined' ? `<button class="piggy" id="piggy" data-act="piggy"><span class="pig">🐷</span><div class="grow" style="text-align:left"><b>Копилка</b><div class="pbar2"><div id="piggyFill"></div></div><small id="piggyTxt"></small></div></button>
+    ${SHINE.questsReady() ? `<button class="banner quest-banner" data-act="openQuests"><span>📜</span><div style="text-align:left">Задание выполнено!<div class="sub">Забери награду</div></div></button>` : `<button class="qline" data-act="openQuests">📜 Задания дня</button>`}` : ''}
     <div class="card" style="width:100%;margin-top:12px">
       ${nx ? `<div class="row"><div class="ico">${nx.emoji}</div><div class="grow"><div class="sub">Следующий статус</div><div class="name">${nx.name}</div><div class="sub">Заработай всего <span class="price">${money(nx.need)}</span></div></div></div>`
            : `<div class="row"><div class="ico">👑</div><div class="grow"><div class="name">Ты на вершине!</div><div class="sub">Попробуй «Новую жизнь» во вкладке «Ещё» для множителя</div></div></div>`}
@@ -292,7 +298,7 @@ function renderBiz() {
 function buyBiz(id) {
   const b = BUSINESSES.find(x => x.id === id), n = buyCount(b), c = costN(b, n);
   if (!spend(c)) return;
-  const st = bst(id), before = st.lvl; st.lvl += n;
+  const st = bst(id), before = st.lvl; st.lvl += n; S.stats.bizBought = (S.stats.bizBought || 0) + n;
   Sfx.buy(); vibe(15);
   if (before === 0) { confetti(60); toast(b.emoji, 'Новый бизнес!', b.name); }
   const m = MILESTONES.filter(t => t > before && t <= st.lvl);
@@ -362,13 +368,15 @@ function buyLife(id) {
 /* ===== ЕЩЁ ===== */
 function renderMore() {
   const el = $('#tab-more');
-  const views = {menu: moreMenu, casino: viewCasino, cups: viewCups, stocks: viewStocks, daily: viewDaily, ach: viewAch, prestige: viewPrestige, stats: viewStats, settings: viewSettings};
+  const views = {menu: moreMenu, casino: viewCasino, cups: viewCups, stocks: viewStocks, daily: viewDaily, ach: viewAch, prestige: viewPrestige, stats: viewStats, settings: viewSettings, quests: () => SHINE.viewQuests()};
   el.innerHTML = (moreView !== 'menu' ? `<button class="btn ghost back" data-act="moreBack">← Назад</button>` : '') + views[moreView]();
   if (moreView === 'stocks') updateStocks();
 }
 function moreMenu() {
   const got = Object.keys(S.ach).length;
   return `<div class="h2">🎰 Ещё</div><div class="grid">
+    <button class="tile t5" data-act="more" data-v="quests"><i>📜</i>Задания дня<small>Новые каждый день</small>${typeof SHINE !== 'undefined' && SHINE.questsReady() ? '<b class="dot"></b>' : ''}</button>
+    <button class="tile t6" data-act="piggy"><i>🐷</i>Копилка<small>Разбей, когда полная</small></button>
     <button class="tile t1" data-act="more" data-v="casino"><i>🎰</i>Казино<small>Испытай удачу</small></button>
     <button class="tile t2" data-act="more" data-v="cups"><i>🥤</i>Напёрстки<small>Где шарик?</small></button>
     <button class="tile t3" data-act="more" data-v="stocks"><i>📈</i>Биржа<small>Купи дёшево</small></button>
@@ -658,7 +666,7 @@ $('#golden').addEventListener('pointerdown', e => {
 /* ---------- бусты ---------- */
 function energy() {
   if (now() < S.boostCd) { Sfx.error(); return; }
-  S.boostUntil = now() + 30e3; S.boostCd = now() + 180e3; Sfx.levelup(); confetti(80); vibe(30); toast('⚡', 'Энергетик!', 'Весь доход x3 на 30 секунд');
+  S.boostUntil = now() + 30e3; S.boostCd = now() + 180e3; S.stats.energy = (S.stats.energy || 0) + 1; Sfx.levelup(); confetti(80); vibe(30); toast('⚡', 'Энергетик!', 'Весь доход x3 на 30 секунд');
 }
 function ad() {
   if (now() < S.adCd) { Sfx.error(); return; }
@@ -694,6 +702,9 @@ document.addEventListener('click', e => {
     case 'reset': resetGame(); break;
     case 'energy': energy(); break;
     case 'ad': ad(); break;
+    case 'quest': SHINE.claimQuest(id); break;
+    case 'piggy': SHINE.piggyBreak(); break;
+    case 'openQuests': moreView = 'quests'; setTab('more'); break;
   }
 });
 $$('#tabs button').forEach(b => b.addEventListener('click', () => { Sfx.init(); Sfx.click(); vibe(5); if (b.dataset.tab === 'more' && curTab === 'more') moreView = 'menu'; setTab(b.dataset.tab); }));
@@ -733,7 +744,8 @@ function updateDynamic() {
   // точки на вкладках
   $('#dotBiz').classList.toggle('hidden', !BUSINESSES.some((b, i) => (i === 0 || bst(BUSINESSES[i - 1].id).lvl) && S.cash >= costN(b, 1)));
   $('#dotUpg').classList.toggle('hidden', !UPGRADES.some(u => !S.upg[u.id] && S.cash >= u.cost));
-  $('#dotMore').classList.toggle('hidden', !dailyAvailable());
+  $('#dotMore').classList.toggle('hidden', !dailyAvailable() && !(typeof SHINE !== 'undefined' && SHINE.questsReady()));
+  if (curTab === 'work' && $('#piggyFill')) { const cap = SHINE.piggyCap(), p = Math.min(1, (S.piggy || 0) / cap); $('#piggyFill').style.width = (p * 100) + '%'; $('#piggyTxt').textContent = p >= 0.999 ? `ПОЛНАЯ! Разбей — получишь ${money((S.piggy || 0) * 2)}` : `${money(S.piggy || 0)} из ${money(cap)} · x2 при разбивании`; $('#piggy').classList.toggle('full', p >= 0.999); }
 }
 function updateBars() {
   if (curTab !== 'biz') return;
@@ -801,5 +813,12 @@ if (had) offlineEarnings();
 else showModal({em: '🧔', title: 'От бомжа до бизнесмена', html: 'У тебя нет ничего, кроме коробки и мечты.<br><br>👆 Тапай, собирай бутылки, открывай бизнесы и стань <b>миллиардером</b>!', buttons: [{label: '🚀 Начать путь', cls: 'gold', fn: () => Sfx.init()}]});
 S.lastSave = now();
 requestAnimationFrame(frame);
-if ('serviceWorker' in navigator && location.protocol !== 'file:') navigator.serviceWorker.register('service-worker.js').catch(() => {});
+if ('serviceWorker' in navigator && location.protocol !== 'file:') {
+  const hadSW = !!navigator.serviceWorker.controller; let reloading = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (!hadSW || reloading) return; reloading = true; save(); location.reload(); });
+  navigator.serviceWorker.register('service-worker.js', {updateViaCache: 'none'}).then(reg => {
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) reg.update().catch(() => {}); });
+    setInterval(() => reg.update().catch(() => {}), 15 * 60e3);
+  }).catch(() => {});
+}
 window.__game = {get S() { return S; }, fmt, save, load, checkStage, setTab, earn};

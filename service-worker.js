@@ -1,7 +1,7 @@
 // Cache names include the worker scope so other games on the same origin stay intact.
 const PREFIX = 'b2b-' + encodeURIComponent(self.registration.scope) + '-';
-const CACHE = PREFIX + 'v5';
-const ASSETS = ['./', './index.html', './style.css', './data.js', './audio.js', './game.js', './manifest.webmanifest',
+const CACHE = PREFIX + 'v6-shine';
+const ASSETS = ['./', './index.html', './style.css', './data.js', './audio.js', './game.js', './shine.js', './manifest.webmanifest',
   './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/favicon-32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
@@ -15,16 +15,20 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (e.request.method !== 'GET' || url.origin !== self.location.origin ||
       !url.href.startsWith(self.registration.scope)) return;
+  const fresh = e.request.mode === 'navigate' || /\.(?:html|js|css|webmanifest)$/.test(url.pathname);
   e.respondWith((async () => {
     const cache = await caches.open(CACHE);
     const hit = await cache.match(e.request, {ignoreSearch: true});
-    const network = fetch(e.request).then(async response => {
-      if (response.ok && response.type !== 'opaque' && !response.redirected) {
-        await cache.put(e.request, response.clone());
-      }
+    if (hit && !fresh) return hit;
+    const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 4500);
+    try {
+      const response = await fetch(e.request, {cache: 'no-cache', signal: ctl.signal});
+      if (response.ok && response.type !== 'opaque' && !response.redirected) await cache.put(e.request, response.clone());
       return response;
-    }).catch(() => hit || Response.error());
-    e.waitUntil(network.then(() => undefined));
-    return hit || network;
+    } catch (err) {
+      if (hit) return hit;
+      if (e.request.mode === 'navigate') { const shell = await cache.match('./index.html'); if (shell) return shell; }
+      return Response.error();
+    } finally { clearTimeout(timer); }
   })());
 });
