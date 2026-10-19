@@ -1,7 +1,7 @@
 // Cache names include the worker scope so other games on the same origin stay intact.
 const PREFIX = 'b2b-' + encodeURIComponent(self.registration.scope) + '-';
-const CACHE = PREFIX + 'v6-shine';
-const ASSETS = ['./', './index.html', './style.css', './data.js', './audio.js', './game.js', './shine.js', './manifest.webmanifest',
+const CACHE = PREFIX + 'v7-boss3';
+const ASSETS = ['./', './index.html', './style.css', './data.js', './audio.js', './game.js', './shine.js', './boss3.js', './manifest.webmanifest',
   './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png', './icons/favicon-32.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

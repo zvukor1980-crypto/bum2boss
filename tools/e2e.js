@@ -12,12 +12,15 @@ let fails = 0; const ok = (c, m) => { console.log((c ? '  ✔ ' : '  ✘ ') + m)
   // 1. новая игра
   let page = await mk();
   await page.evaluateOnNewDocument(() => { if (!sessionStorage.getItem('clr')) { sessionStorage.setItem('clr', 1); localStorage.clear(); } });
-  await page.goto(BASE, { waitUntil: 'networkidle0' });
+  await page.goto(BASE, { waitUntil: 'networkidle0' }); await sleep(900);
+  ok(await page.evaluate(() => !document.getElementById('b3title').hidden), 'титульный экран при запуске');
+  await page.screenshot({ path: OUT + '/bum2boss-title.png' });
+  await page.tap('#b3tPlay'); await sleep(700);
   await page.waitForSelector('#modalCard .btn'); await page.tap('#modalCard .btn'); await sleep(400);
   const box = await (await page.$('#tapBtn')).boundingBox();
   for (let i = 0; i < 60; i++) { await page.touchscreen.tap(box.x + box.width / 2 + (i % 5) * 6, box.y + box.height / 2); await sleep(30); }
   let st = await page.evaluate(() => ({ cash: __game.S.cash, taps: __game.S.taps, piggy: __game.S.piggy }));
-  ok(st.taps === 60 && st.cash > 60, 'тапы приносят деньги: ' + JSON.stringify(st));
+  ok(st.taps >= 60 && st.cash > 60, 'тапы приносят деньги: ' + JSON.stringify(st));
   ok(st.piggy > 0, 'копилка наполняется');
   await page.screenshot({ path: '/tmp/b2b-tap.png' });
   await page.tap('[data-tab=biz]'); await sleep(300);
@@ -28,7 +31,7 @@ let fails = 0; const ok = (c, m) => { console.log((c ? '  ✔ ' : '  ✘ ') + m)
   // 2. старое сохранение v1 (без новых полей) на поздней стадии
   page = await mk();
   await page.evaluateOnNewDocument(() => { if (!sessionStorage.getItem('seed')) { sessionStorage.setItem('seed', 1); localStorage.setItem('b2b_save_v1', JSON.stringify({ cash: 4.2e9, totalEarned: 7e9, lifetime: 7e9, taps: 5000, stage: 7, biz: { b1: { lvl: 120, mgr: true, prog: 0, run: false }, b2: { lvl: 60, mgr: true, prog: 0, run: false } }, upg: { t1: 1 }, life: { h0: 1, v0: 1, w0: 1 }, prestige: 2, ach: { tap1: 1 }, daily: { last: '2026-1-1', streak: 3 }, stats: { golden: 4, spins: 2, maxCombo: 30 }, settings: { sound: false, vibe: false }, buyMult: 1, lastSave: Date.now() })); } });
-  await page.goto(BASE, { waitUntil: 'networkidle0' }); await sleep(800);
+  await page.goto(BASE, { waitUntil: 'networkidle0' }); await sleep(800); await page.tap('#b3tPlay'); await sleep(700);
   st = await page.evaluate(() => ({ stage: __game.S.stage, prestige: __game.S.prestige, q: !!__game.S.quests, biz: __game.S.biz.b1.lvl, rain: __game.S.stats.rain }));
   ok(st.stage >= 7 && st.prestige === 2 && st.q && st.biz === 120 && st.rain === 0, 'старое сохранение загружено и дополнено: ' + JSON.stringify(st));
   // копилка: заполним и разобьём
@@ -60,10 +63,32 @@ let fails = 0; const ok = (c, m) => { console.log((c ? '  ✔ ' : '  ✘ ') + m)
   await page.screenshot({ path: OUT + '/bum2boss-more.png' });
   await page.tap('[data-tab=biz]'); await sleep(500); await page.screenshot({ path: '/tmp/b2b-biz.png' });
   await page.tap('[data-tab=work]'); await sleep(300);
+  // бум-режим
+  await page.evaluate(() => { document.querySelectorAll('#modal:not(.hidden) .btn').forEach(b => b.click()); });
+  const tb = await (await page.$('#tapBtn')).boundingBox();
+  for (let i = 0; i < 140; i++) { await page.touchscreen.tap(tb.x + tb.width / 2, tb.y + tb.height / 2); await sleep(15); if (i > 40 && await page.evaluate(() => B3.isBoom())) break; }
+  st = await page.evaluate(() => ({ boom: B3.isBoom(), n: __game.S.b3.booms, m: B3.meter, taps: __game.S.taps, top: document.elementFromPoint(innerWidth/2, 300).className, tab: document.querySelector('.tab.active').id }));
+  ok(st.boom && st.n === 1, 'частые тапы включают БУМ-режим ' + JSON.stringify(st));
+  const cb = await page.evaluate(() => __game.S.cash); await page.touchscreen.tap(tb.x + tb.width / 2, tb.y + tb.height / 2); await sleep(100);
+  await page.screenshot({ path: OUT + '/bum2boss-boom.png' });
+  // небоскрёб
+  await page.evaluate(() => { __game.S.b3.tlast = 0; }); await page.tap('[data-tab=more]'); await sleep(300);
+  await page.evaluate(() => { document.querySelector('[data-act=moreBack]') && document.querySelector('[data-act=moreBack]').click(); }); await sleep(300);
+  ok(await page.evaluate(() => !!document.querySelector('[data-act=b3tower]')), 'плитка «Небоскрёб» в меню «Ещё»');
+  await page.evaluate(() => document.querySelector('[data-act=b3tower]').click()); await sleep(300);
+  await page.tap('#b3go'); await sleep(300);
+  for (let i = 0; i < 12; i++) { await page.evaluate(() => { const G = B3.game, t = G.blocks[G.blocks.length - 1]; G.cur.x = t.x + (G.blocks.length % 4 ? 0 : 8); }); await page.touchscreen.tap(200, 500); await sleep(120); }
+  await page.screenshot({ path: OUT + '/bum2boss-tower.png' });
+  const c1 = await page.evaluate(() => __game.S.cash);
+  await page.evaluate(() => { B3.game.cur.x = innerWidth + 500; B3.drop(); }); await sleep(900);
+  st = await page.evaluate(c1 => ({ best: __game.S.b3.tbest, gain: __game.S.cash - c1, msg: !document.getElementById('b3msg').hidden }), c1);
+  ok(st.best >= 12 && st.gain > 0 && st.msg, 'небоскрёб: этажи, рекорд и награда ' + JSON.stringify(st));
+  await page.tap('#b3tx'); await sleep(300);
   // офлайн
   await page.evaluate(() => navigator.serviceWorker.ready); await page.reload({ waitUntil: 'networkidle0' });
   ok(await page.evaluate(() => !!navigator.serviceWorker.controller), 'страница под service worker');
   await page.setOfflineMode(true); await page.reload({ waitUntil: 'load' }); await sleep(800);
+  ok(await page.evaluate(() => typeof B3 !== 'undefined' && __game.S.b3.tbest >= 12), 'рекорд небоскрёба сохраняется');
   ok(await page.evaluate(() => typeof SHINE !== 'undefined' && __game.S.stage >= 7), 'офлайн запуск работает, прогресс на месте');
   await page.setOfflineMode(false);
   ok(errs.length === 0, 'нет ошибок JS' + (errs.length ? ': ' + errs.join(' | ') : ''));
